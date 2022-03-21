@@ -1,0 +1,7 @@
+Criar modelo de usuários
+    - Cadastro
+    - Login
+
+Criar modelo de upload de som
+    - Ligado ao usuário 
+    - Opção de privado ou publico
