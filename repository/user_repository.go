@@ -5,12 +5,19 @@ import (
 	"github.com/REIS0/scuz/models"
 )
 
-func GetUser(id string) models.User {
+type UserRepository struct {
+	DB database.Database
+}
+
+func (ur *UserRepository) GetUser(id string) models.User {
 	var user models.User
-	database.DBConn.Find(&user, "Username = ? OR Email = ?", id, id)
+	conn := ur.DB.GetConnection()
+
+	conn.Find(&user, "Username = ? OR Email = ?", id, id)
 	return user
 }
 
-func CreateUser(user models.User) {
-	database.DBConn.Create(&user)
+func (ur *UserRepository) CreateUser(user models.User) {
+	conn := ur.DB.GetConnection()
+	conn.Create(&user)
 }

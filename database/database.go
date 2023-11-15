@@ -9,16 +9,27 @@ import (
 	"gorm.io/gorm"
 )
 
-var DBConn *gorm.DB
+type Database struct {
+	path string
+	conn *gorm.DB
+}
 
-func InitDatabase(path string) error {
+func (db *Database) InitDatabase(path string) (*Database, error) {
 	var err error
-	DBConn, err = gorm.Open(sqlite.Open(path), &gorm.Config{})
+	db.conn, err = gorm.Open(sqlite.Open(db.path), &gorm.Config{})
 	if err != nil {
-		return errors.New("failed to start database")
+		return nil, errors.New("failed to start database")
 	}
 	fmt.Println("Connection to database started")
-	DBConn.AutoMigrate(&models.User{})
+	db.conn.AutoMigrate(&models.User{})
 	fmt.Println("Migrations finished")
-	return nil
+	return db, nil
+}
+
+func (db *Database) GetConnection() *gorm.DB {
+	return db.conn
+}
+
+func (db *Database) GetPath() string {
+	return db.path
 }

@@ -6,28 +6,40 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func testRoute(c *fiber.Ctx) error {
+type Views struct {
+	App         *fiber.App
+	URepository *repository.UserRepository
+}
+
+// Setup
+func (v *Views) setUpRoutes(app *fiber.App) {
+	app.Get("/", v.testRoute)
+	app.Get("/users/:username", v.getUser)
+	app.Post("/users", v.postUser)
+}
+
+func (v *Views) InitRoutes() {
+	v.setUpRoutes(v.App)
+	v.App.Listen(":3000")
+}
+
+// ** ROTAS **
+func (v *Views) testRoute(c *fiber.Ctx) error {
 	return c.SendString("Funcionando")
 }
 
-func SetUpRoutes(app *fiber.App) {
-	app.Get("/", testRoute)
-	app.Get("/users/:username", getUser)
-	app.Post("/users", postUser)
-}
-
-func getUser(c *fiber.Ctx) error {
+func (v *Views) getUser(c *fiber.Ctx) error {
 	username := c.Params("username")
-	user := repository.GetUser(username)
+	user := v.URepository.GetUser(username)
 	return c.JSON(user)
 }
 
-func postUser(c *fiber.Ctx) error {
+func (v *Views) postUser(c *fiber.Ctx) error {
 	newUser := new(models.User)
 	if err := c.BodyParser(newUser); err != nil {
 		return c.Status(503).SendString(err.Error())
 	}
-	repository.CreateUser(*newUser)
+	v.URepository.CreateUser(*newUser)
 	return c.Status(201).SendString("User created")
 }
 
